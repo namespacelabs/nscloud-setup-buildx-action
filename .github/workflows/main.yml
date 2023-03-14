@@ -28,7 +28,7 @@ jobs:
         with:
           context: .
           file: .github/workflows/testdata/Dockerfile
-          push: github.ref_name == 'main'
+          push: ${{ github.ref_name == 'main' }}
           tags: "${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:latest"
           cache-from: "type=registry,ref=${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:buildcache"
           cache-to: "type=registry,ref=${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:buildcache,mode=max"
