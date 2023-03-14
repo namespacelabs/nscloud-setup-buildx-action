@@ -4362,7 +4362,7 @@ function prepareBuildx() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const sock = tmpFile("buildkit.sock");
-            yield exec.exec(`tmux new-session -d -s ${SessionId} "nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock}"`);
+            yield exec.exec(`tmux new-session -d -s ${SessionId} \"nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock}\"`);
             yield exec.exec(`docker buildx create --name remote-nsc --driver remote unix://${sock}`);
             yield exec.exec("docker buildx use remote-nsc");
         }
