@@ -18,7 +18,9 @@ Please add a step this step to your workflow's job definition:
 
 async function prepareBuildx(): Promise<void> {
 	const sock = tmpFile("buildkit.sock");
-	await exec.exec(`tmux new-session -d -s ${SessionId} "nsc proxy buildkit ${sock}"`);
+	await exec.exec(
+		`tmux new-session -d -s ${SessionId} "nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock}"`
+	);
 
 	await exec.exec(`docker buildx create --name remote-nsc --driver remote unix://${sock}`);
 

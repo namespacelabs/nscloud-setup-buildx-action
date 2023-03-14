@@ -4361,7 +4361,7 @@ Please add a step this step to your workflow's job definition:
 function prepareBuildx() {
     return __awaiter(this, void 0, void 0, function* () {
         const sock = tmpFile("buildkit.sock");
-        yield exec.exec(`tmux new-session -d -s ${SessionId} "nsc proxy buildkit ${sock}"`);
+        yield exec.exec(`tmux new-session -d -s ${SessionId} "nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock}"`);
         yield exec.exec(`docker buildx create --name remote-nsc --driver remote unix://${sock}`);
         yield exec.exec("docker buildx use remote-nsc");
     });
