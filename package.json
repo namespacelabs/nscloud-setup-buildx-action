@@ -1,0 +1,39 @@
+{
+	"name": "nscloud-setup-buildx-action",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"dependencies": {
+		"@actions/core": "^1.10.0",
+		"@actions/exec": "^1.1.1",
+		"command-exists": "^1.2.9"
+	},
+	"scripts": {
+		"build": "concurrently 'yarn build:main' 'yarn build:post'",
+		"watch": "concurrently 'yarn watch:main' 'yarn watch:post'",
+		"build:main": "ncc build main.ts --out dist/main",
+		"watch:main": "ncc build main.ts --out dist/main --watch",
+		"build:post": "ncc build post.ts --out dist/post",
+		"watch:post": "ncc build post.ts --out dist/post --watch",
+		"add": "git add dist/*"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/namespacelabs/nscloud-setup-buildx-action.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "Apache-2.0",
+	"devDependencies": {
+		"@types/node": "^16.11.7",
+		"@vercel/ncc": "^0.34.0",
+		"concurrently": "^7.5.0",
+		"pre-commit": "^1.2.2",
+		"prettier": "^2.0.2",
+		"typescript": "^4.8.4"
+	},
+	"pre-commit": [
+		"build",
+		"add"
+	]
+}

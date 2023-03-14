@@ -1,0 +1,31 @@
+name: e2e
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+jobs:
+  run_nscloud_action:
+    runs-on: ubuntu-latest
+    name: Deploy a sample application to Namespace Cloud
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Namespace Cloud CLI
+        id: nscloud
+        uses: namespacelabs/nscloud-setup@v0.0.1 # TODO upgrade version and use private registry during push
+      - name: Configure buildx
+        uses: ./ # Uses an action in the root directory
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: .github/workflows/testdata/Dockerfile
+          push: true
+          tags: "${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:latest"
+          cache-from: "type=registry,ref=${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:buildcache"
+          cache-to: "type=registry,ref=${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:buildcache,mode=max"
