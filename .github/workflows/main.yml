@@ -2,7 +2,10 @@ name: e2e
 on:
   push:
     branches:
-      - master
+      - main
+  pull_request:
+    branches:
+      - "*"
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -25,7 +28,7 @@ jobs:
         with:
           context: .
           file: .github/workflows/testdata/Dockerfile
-          push: true
+          push: github.ref_name == 'main'
           tags: "${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:latest"
           cache-from: "type=registry,ref=${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:buildcache"
           cache-to: "type=registry,ref=${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:buildcache,mode=max"
