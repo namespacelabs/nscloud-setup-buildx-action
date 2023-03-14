@@ -24,13 +24,6 @@ jobs:
         uses: namespacelabs/nscloud-setup@v0.0.2
       - name: Configure buildx
         uses: ./ # Uses an action in the root directory
-      - name: Debug step
-        run: |
-          echo "Pushing to ${{ steps.nscloud.outputs.registry-address }}..."
-
-          tmux ls
-          tmux pipe-pane -t NscBuildkitProxySession -o 'cat > /tmp/mypipe'
-          cat /tmp/mypipe
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
