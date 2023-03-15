@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 
-export const SessionId = "NscBuildkitProxySession";
+export const ProxyPidFile = tmpFile("buildkit-proxy.pid");
 
 export function tmpFile(file: string): string {
 	const tmpDir = path.join(process.env.RUNNER_TEMP, "ns");

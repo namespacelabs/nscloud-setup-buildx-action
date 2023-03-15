@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
-import { SessionId, tmpFile } from "./common";
+import { ProxyPidFile, tmpFile } from "./common";
 
 async function run(): Promise<void> {
 	var commandExists = require("command-exists");
@@ -18,9 +18,9 @@ Please add a step this step to your workflow's job definition:
 
 async function prepareBuildx(): Promise<void> {
 	try {
-		const sock = tmpFile("buildkit.sock");
+		const sock = tmpFile("buildkit-proxy.sock");
 		await exec.exec(
-			`tmux new-session -d -s ${SessionId} \"nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock}\"`
+			`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`
 		);
 
 		await exec.exec(`docker buildx create --name remote-nsc --driver remote unix://${sock}`);
