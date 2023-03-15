@@ -4322,7 +4322,7 @@ var external_fs_ = __nccwpck_require__(147);
 ;// CONCATENATED MODULE: ./common.ts
 
 
-const SessionId = "NscBuildkitProxySession";
+const ProxyPidFile = tmpFile("buildkit-proxy.pid");
 function tmpFile(file) {
     const tmpDir = external_path_.join(process.env.RUNNER_TEMP, "ns");
     if (!external_fs_.existsSync(tmpDir)) {
@@ -4361,8 +4361,8 @@ Please add a step this step to your workflow's job definition:
 function prepareBuildx() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const sock = tmpFile("buildkit.sock");
-            yield exec.exec(`tmux new-session -d -s ${SessionId} \"nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock}\"`);
+            const sock = tmpFile("buildkit-proxy.sock");
+            yield exec.exec(`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`);
             yield exec.exec(`docker buildx create --name remote-nsc --driver remote unix://${sock}`);
             yield exec.exec("docker buildx use remote-nsc");
         }
