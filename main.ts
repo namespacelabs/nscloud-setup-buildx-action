@@ -33,11 +33,13 @@ async function prepareBuildx(): Promise<void> {
 			);
 		});
 
-		console.log(`Configured buildx to use remote Namespace Cloud build cluster.`);
-
 		await core.group(`Builder`, async () => {
 			core.info("remote-nsc");
 		});
+
+		// New line to separate from groups.
+		core.info(`
+Configured buildx to use remote Namespace Cloud build cluster.`);
 	} catch (error) {
 		core.setFailed(error.message);
 	}
