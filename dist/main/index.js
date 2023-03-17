@@ -4354,7 +4354,7 @@ function run() {
 
 Please add a step this step to your workflow's job definition:
 
-- uses: namespacelabs/nscloud-setup@v0.0.1`);
+- uses: namespacelabs/nscloud-setup@v0.0.3`);
         });
     });
 }
