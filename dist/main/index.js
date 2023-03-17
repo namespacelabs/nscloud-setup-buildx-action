@@ -4362,9 +4362,14 @@ function prepareBuildx() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const sock = tmpFile("buildkit-proxy.sock");
-            yield exec.exec(`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`);
-            yield exec.exec(`docker buildx create --name remote-nsc --driver remote unix://${sock} --use`);
+            yield core.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
+                yield exec.exec(`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`);
+                yield exec.exec(`docker buildx create --name remote-nsc --driver remote unix://${sock} --use`);
+            }));
             console.log(`Configured buildx to use remote Namespace Cloud build cluster.`);
+            yield core.group(`Builder`, () => __awaiter(this, void 0, void 0, function* () {
+                core.info("remote-nsc");
+            }));
         }
         catch (error) {
             core.setFailed(error.message);
