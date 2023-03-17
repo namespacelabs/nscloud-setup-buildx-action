@@ -4363,6 +4363,8 @@ function prepareBuildx() {
         try {
             const sock = tmpFile("buildkit-proxy.sock");
             yield core.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
+                // We only need a valid token when opening the proxy
+                yield exec.exec("nsc auth exchange-github-token --ensure=5m");
                 yield exec.exec(`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`);
                 yield exec.exec(`docker buildx create --name remote-nsc --driver remote unix://${sock} --use`);
             }));

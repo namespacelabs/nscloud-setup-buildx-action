@@ -21,6 +21,9 @@ async function prepareBuildx(): Promise<void> {
 		const sock = tmpFile("buildkit-proxy.sock");
 
 		await core.group(`Proxy Buildkit from Namespace Cloud`, async () => {
+			// We only need a valid token when opening the proxy
+			await exec.exec("nsc auth exchange-github-token --ensure=5m");
+
 			await exec.exec(
 				`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`
 			);
