@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
+import * as fs from "fs";
 import { ProxyPidFile, tmpFile } from "./common";
 
 async function run(): Promise<void> {
@@ -21,8 +22,7 @@ async function prepareBuildx(): Promise<void> {
 		const sock = tmpFile("buildkit-proxy.sock");
 
 		await core.group(`Proxy Buildkit from Namespace Cloud`, async () => {
-			// We only need a valid token when opening the proxy
-			await exec.exec("nsc auth exchange-github-token --ensure=5m");
+			await ensureNscloudToken();
 
 			await exec.exec(
 				`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`
@@ -43,6 +43,18 @@ Configured buildx to use remote Namespace Cloud build cluster.`);
 	} catch (error) {
 		core.setFailed(error.message);
 	}
+}
+
+async function ensureNscloudToken() {
+	const tokenSpecFile = "/var/run/nsc/token.spec";
+	if (fs.existsSync(tokenSpecFile)) {
+		const tokenSpec = fs.readFileSync(tokenSpecFile, "utf8");
+		core.exportVariable("NSC_TOKEN_SPEC", tokenSpec);
+		return
+	}
+
+	// We only need a valid token when opening the proxy
+	await exec.exec("nsc auth exchange-github-token --ensure=5m");
 }
 
 run();
