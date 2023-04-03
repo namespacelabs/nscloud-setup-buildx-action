@@ -4315,10 +4315,10 @@ __nccwpck_require__.r(__webpack_exports__);
 var core = __nccwpck_require__(186);
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
 var exec = __nccwpck_require__(514);
-// EXTERNAL MODULE: external "path"
-var external_path_ = __nccwpck_require__(17);
 // EXTERNAL MODULE: external "fs"
 var external_fs_ = __nccwpck_require__(147);
+// EXTERNAL MODULE: external "path"
+var external_path_ = __nccwpck_require__(17);
 ;// CONCATENATED MODULE: ./common.ts
 
 
@@ -4344,6 +4344,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         var commandExists = __nccwpck_require__(724);
@@ -4363,8 +4364,7 @@ function prepareBuildx() {
         try {
             const sock = tmpFile("buildkit-proxy.sock");
             yield core.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
-                // We only need a valid token when opening the proxy
-                yield exec.exec("nsc auth exchange-github-token --ensure=5m");
+                yield ensureNscloudToken();
                 yield exec.exec(`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`);
                 yield exec.exec(`docker buildx create --name remote-nsc --driver remote unix://${sock} --use`);
             }));
@@ -4378,6 +4378,18 @@ Configured buildx to use remote Namespace Cloud build cluster.`);
         catch (error) {
             core.setFailed(error.message);
         }
+    });
+}
+function ensureNscloudToken() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const tokenSpecFile = "/var/run/nsc/token.spec";
+        if (external_fs_.existsSync(tokenSpecFile)) {
+            const tokenSpec = external_fs_.readFileSync(tokenSpecFile, "utf8");
+            core.exportVariable("NSC_TOKEN_SPEC", tokenSpec);
+            return;
+        }
+        // We only need a valid token when opening the proxy
+        yield exec.exec("nsc auth exchange-github-token --ensure=5m");
     });
 }
 run();
