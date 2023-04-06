@@ -17,9 +17,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install and configure Namespace Cloud CLI
-        uses: namespacelabs/nscloud-setup@v0.0.4
+        uses: namespacelabs/nscloud-setup@v0.0.5
       - name: Configure buildx
-        uses: namespacelabs/nscloud-setup-buildx-action@v0.0.3
+        uses: namespacelabs/nscloud-setup-buildx-action@v0.0.4
       - name: Build and push
         uses: docker/build-push-action@v4
         with:

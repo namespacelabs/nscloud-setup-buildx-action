@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Set up Namespace Cloud CLI
         id: nscloud
-        uses: namespacelabs/nscloud-setup@v0.0.4
+        uses: namespacelabs/nscloud-setup@v0.0.5
       - name: Configure buildx
         uses: ./ # Uses an action in the root directory
       - name: Build and push
