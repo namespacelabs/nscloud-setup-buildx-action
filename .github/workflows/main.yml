@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Set up Namespace Cloud CLI
+      - name: Configure access to Namespace
         id: nscloud
         uses: namespacelabs/nscloud-setup@v0.0.5
       - name: Configure buildx

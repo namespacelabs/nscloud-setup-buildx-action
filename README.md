@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install and configure Namespace Cloud CLI
+      - name: Configure access to Namespace
         uses: namespacelabs/nscloud-setup@v0.0.5
       - name: Configure buildx
         uses: namespacelabs/nscloud-setup-buildx-action@v0.0.4
