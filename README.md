@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Configure access to Namespace
-        uses: namespacelabs/nscloud-setup@v0.0.5
+        uses: namespacelabs/nscloud-setup@v0
       - name: Configure buildx
         uses: namespacelabs/nscloud-setup-buildx-action@v0.0.4
       - name: Build and push

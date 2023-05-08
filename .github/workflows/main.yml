@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Configure access to Namespace
         id: nscloud
-        uses: namespacelabs/nscloud-setup@v0.0.5
+        uses: namespacelabs/nscloud-setup@v0
       - name: Configure buildx
         uses: ./ # Uses an action in the root directory
       - name: Build and push
