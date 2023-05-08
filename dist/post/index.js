@@ -2881,8 +2881,10 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const pid = external_fs_.readFileSync(ProxyPidFile, "utf8");
-            process.kill(parseInt(pid), "SIGINT");
+            if (external_fs_.existsSync(ProxyPidFile)) {
+                const pid = external_fs_.readFileSync(ProxyPidFile, "utf8");
+                process.kill(parseInt(pid), "SIGINT");
+            }
         }
         catch (error) {
             core.setFailed(error.message);

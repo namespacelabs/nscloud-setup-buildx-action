@@ -4,8 +4,10 @@ import { ProxyPidFile } from "./common";
 
 async function run(): Promise<void> {
 	try {
-		const pid = fs.readFileSync(ProxyPidFile, "utf8");
-		process.kill(parseInt(pid), "SIGINT");
+		if (fs.existsSync(ProxyPidFile)) {
+			const pid = fs.readFileSync(ProxyPidFile, "utf8");
+			process.kill(parseInt(pid), "SIGINT");
+		}
 	} catch (error) {
 		core.setFailed(error.message);
 	}
