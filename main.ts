@@ -3,6 +3,8 @@ import * as exec from "@actions/exec";
 import * as fs from "fs";
 import { ProxyPidFile, tmpFile } from "./common";
 
+export const nscRemoteBuilderName = "remote-nsc";
+
 async function run(): Promise<void> {
 	var commandExists = require("command-exists");
 
@@ -19,6 +21,15 @@ Please add a step this step to your workflow's job definition:
 
 async function prepareBuildx(): Promise<void> {
 	try {
+		await core.group(`Check if Namespace Cloud Remote Builder`, async () => {
+			const builderExists = await remoteNscBuilderExists();
+			if (builderExists) {
+				core.info(`
+GitHub runner is already configured to use Namespace Cloud build cluster.`);
+				return;
+			}
+		});
+
 		const sock = tmpFile("buildkit-proxy.sock");
 
 		await core.group(`Proxy Buildkit from Namespace Cloud`, async () => {
@@ -29,7 +40,7 @@ async function prepareBuildx(): Promise<void> {
 			);
 
 			await exec.exec(
-				`docker buildx create --name remote-nsc --driver remote unix://${sock} --use`
+				`docker buildx create --name ${nscRemoteBuilderName} --driver remote unix://${sock} --use`
 			);
 		});
 
@@ -54,6 +65,12 @@ async function ensureNscloudToken() {
 
 	// We only need a valid token when opening the proxy
 	await exec.exec("nsc auth exchange-github-token --ensure=5m");
+}
+
+async function remoteNscBuilderExists(): Promise<boolean> {
+	const { stdout, stderr } = await exec.getExecOutput(`docker buildx inspect ${nscRemoteBuilderName}`);
+	const builderNotFoundStr = `no builder "${nscRemoteBuilderName}" found`;
+	return !(stdout.includes(builderNotFoundStr) || stderr.includes(builderNotFoundStr))
 }
 
 run();

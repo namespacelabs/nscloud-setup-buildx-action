@@ -4288,6 +4288,23 @@ module.exports = require("util");
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
@@ -4310,6 +4327,11 @@ var __webpack_exports__ = {};
 "use strict";
 // ESM COMPAT FLAG
 __nccwpck_require__.r(__webpack_exports__);
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  "nscRemoteBuilderName": () => (/* binding */ nscRemoteBuilderName)
+});
 
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(186);
@@ -4345,6 +4367,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+const nscRemoteBuilderName = "remote-nsc";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         var commandExists = __nccwpck_require__(724);
@@ -4362,11 +4385,19 @@ Please add a step this step to your workflow's job definition:
 function prepareBuildx() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            yield core.group(`Check if Namespace Cloud Remote Builder`, () => __awaiter(this, void 0, void 0, function* () {
+                const builderExists = yield remoteNscBuilderExists();
+                if (builderExists) {
+                    core.info(`
+GitHub runner is already configured to use Namespace Cloud build cluster.`);
+                    return;
+                }
+            }));
             const sock = tmpFile("buildkit-proxy.sock");
             yield core.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
                 yield ensureNscloudToken();
                 yield exec.exec(`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`);
-                yield exec.exec(`docker buildx create --name remote-nsc --driver remote unix://${sock} --use`);
+                yield exec.exec(`docker buildx create --name ${nscRemoteBuilderName} --driver remote unix://${sock} --use`);
             }));
             yield core.group(`Builder`, () => __awaiter(this, void 0, void 0, function* () {
                 core.info("remote-nsc");
@@ -4389,6 +4420,13 @@ function ensureNscloudToken() {
         }
         // We only need a valid token when opening the proxy
         yield exec.exec("nsc auth exchange-github-token --ensure=5m");
+    });
+}
+function remoteNscBuilderExists() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { stdout, stderr } = yield exec.getExecOutput(`docker buildx inspect ${nscRemoteBuilderName}`);
+        const builderNotFoundStr = `no builder "${nscRemoteBuilderName}" found`;
+        return !(stdout.includes(builderNotFoundStr) || stderr.includes(builderNotFoundStr));
     });
 }
 run();
