@@ -24,10 +24,10 @@ async function prepareBuildx(): Promise<void> {
 		await core.group(`Ensure Namespace Builder proxy is already configured`, async () => {
 			const builderExists = await remoteNscBuilderExists();
 			if (builderExists) {
-				core.info(`
-GitHub runner is already configured to use Namespace Cloud build cluster.`);
+				core.info(`GitHub runner is already configured to use Namespace Cloud build cluster.`);
 				return;
 			}
+			core.info(`Namespace Builder is not yet configured.`);
 		});
 
 		const sock = tmpFile("buildkit-proxy.sock");
@@ -45,7 +45,7 @@ GitHub runner is already configured to use Namespace Cloud build cluster.`);
 		});
 
 		await core.group(`Builder`, async () => {
-			core.info("remote-nsc");
+			core.info(nscRemoteBuilderName);
 		});
 
 		// New line to separate from groups.

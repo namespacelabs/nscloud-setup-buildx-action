@@ -4388,10 +4388,10 @@ function prepareBuildx() {
             yield core.group(`Ensure Namespace Builder proxy is already configured`, () => __awaiter(this, void 0, void 0, function* () {
                 const builderExists = yield remoteNscBuilderExists();
                 if (builderExists) {
-                    core.info(`
-GitHub runner is already configured to use Namespace Cloud build cluster.`);
+                    core.info(`GitHub runner is already configured to use Namespace Cloud build cluster.`);
                     return;
                 }
+                core.info(`Namespace Builder is not yet configured.`);
             }));
             const sock = tmpFile("buildkit-proxy.sock");
             yield core.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
@@ -4400,7 +4400,7 @@ GitHub runner is already configured to use Namespace Cloud build cluster.`);
                 yield exec.exec(`docker buildx create --name ${nscRemoteBuilderName} --driver remote unix://${sock} --use`);
             }));
             yield core.group(`Builder`, () => __awaiter(this, void 0, void 0, function* () {
-                core.info("remote-nsc");
+                core.info(nscRemoteBuilderName);
             }));
             // New line to separate from groups.
             core.info(`
