@@ -4385,7 +4385,7 @@ Please add a step this step to your workflow's job definition:
 function prepareBuildx() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield core.group(`Check if Namespace Cloud Remote Builder`, () => __awaiter(this, void 0, void 0, function* () {
+            yield core.group(`Ensure Namespace Builder proxy is already configured`, () => __awaiter(this, void 0, void 0, function* () {
                 const builderExists = yield remoteNscBuilderExists();
                 if (builderExists) {
                     core.info(`
@@ -4424,7 +4424,7 @@ function ensureNscloudToken() {
 }
 function remoteNscBuilderExists() {
     return __awaiter(this, void 0, void 0, function* () {
-        const { stdout, stderr } = yield exec.getExecOutput(`docker buildx inspect ${nscRemoteBuilderName}`);
+        const { stdout, stderr } = yield exec.getExecOutput(`docker buildx inspect ${nscRemoteBuilderName}`, null, { ignoreReturnCode: true, silent: true });
         const builderNotFoundStr = `no builder "${nscRemoteBuilderName}" found`;
         return !(stdout.includes(builderNotFoundStr) || stderr.includes(builderNotFoundStr));
     });

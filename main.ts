@@ -21,7 +21,7 @@ Please add a step this step to your workflow's job definition:
 
 async function prepareBuildx(): Promise<void> {
 	try {
-		await core.group(`Check if Namespace Cloud Remote Builder`, async () => {
+		await core.group(`Ensure Namespace Builder proxy is already configured`, async () => {
 			const builderExists = await remoteNscBuilderExists();
 			if (builderExists) {
 				core.info(`
@@ -68,7 +68,9 @@ async function ensureNscloudToken() {
 }
 
 async function remoteNscBuilderExists(): Promise<boolean> {
-	const { stdout, stderr } = await exec.getExecOutput(`docker buildx inspect ${nscRemoteBuilderName}`);
+	const { stdout, stderr } = await exec.getExecOutput(
+		`docker buildx inspect ${nscRemoteBuilderName}`,
+		null, {ignoreReturnCode: true, silent: true});
 	const builderNotFoundStr = `no builder "${nscRemoteBuilderName}" found`;
 	return !(stdout.includes(builderNotFoundStr) || stderr.includes(builderNotFoundStr))
 }
