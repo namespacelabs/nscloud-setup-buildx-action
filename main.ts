@@ -21,28 +21,31 @@ Please add a step this step to your workflow's job definition:
 
 async function prepareBuildx(): Promise<void> {
 	try {
-		await core.group(`Ensure Namespace Builder proxy is already configured`, async () => {
+		const exists = await core.group(`Ensure Namespace Builder proxy is already configured`, async (): Promise<boolean> => {
 			const builderExists = await remoteNscBuilderExists();
 			if (builderExists) {
 				core.info(`GitHub runner is already configured to use Namespace Cloud build cluster.`);
-				return;
+				return true;
 			}
 			core.info(`Namespace Builder is not yet configured.`);
+			return false;
 		});
+		
+		if (!exists) {
+			const sock = tmpFile("buildkit-proxy.sock");
 
-		const sock = tmpFile("buildkit-proxy.sock");
+			await core.group(`Proxy Buildkit from Namespace Cloud`, async () => {
+				await ensureNscloudToken();
 
-		await core.group(`Proxy Buildkit from Namespace Cloud`, async () => {
-			await ensureNscloudToken();
+				await exec.exec(
+					`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`
+				);
 
-			await exec.exec(
-				`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`
-			);
-
-			await exec.exec(
-				`docker buildx create --name ${nscRemoteBuilderName} --driver remote unix://${sock} --use`
-			);
-		});
+				await exec.exec(
+					`docker buildx create --name ${nscRemoteBuilderName} --driver remote unix://${sock} --use`
+				);
+			});
+		}
 
 		await core.group(`Builder`, async () => {
 			core.info(nscRemoteBuilderName);

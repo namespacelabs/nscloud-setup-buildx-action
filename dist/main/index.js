@@ -4385,20 +4385,23 @@ Please add a step this step to your workflow's job definition:
 function prepareBuildx() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield core.group(`Ensure Namespace Builder proxy is already configured`, () => __awaiter(this, void 0, void 0, function* () {
+            const exists = yield core.group(`Ensure Namespace Builder proxy is already configured`, () => __awaiter(this, void 0, void 0, function* () {
                 const builderExists = yield remoteNscBuilderExists();
                 if (builderExists) {
                     core.info(`GitHub runner is already configured to use Namespace Cloud build cluster.`);
-                    return;
+                    return true;
                 }
                 core.info(`Namespace Builder is not yet configured.`);
+                return false;
             }));
-            const sock = tmpFile("buildkit-proxy.sock");
-            yield core.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
-                yield ensureNscloudToken();
-                yield exec.exec(`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`);
-                yield exec.exec(`docker buildx create --name ${nscRemoteBuilderName} --driver remote unix://${sock} --use`);
-            }));
+            if (!exists) {
+                const sock = tmpFile("buildkit-proxy.sock");
+                yield core.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
+                    yield ensureNscloudToken();
+                    yield exec.exec(`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`);
+                    yield exec.exec(`docker buildx create --name ${nscRemoteBuilderName} --driver remote unix://${sock} --use`);
+                }));
+            }
             yield core.group(`Builder`, () => __awaiter(this, void 0, void 0, function* () {
                 core.info(nscRemoteBuilderName);
             }));
