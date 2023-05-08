@@ -19,7 +19,7 @@ jobs:
       - name: Configure access to Namespace
         uses: namespacelabs/nscloud-setup@v0
       - name: Configure buildx
-        uses: namespacelabs/nscloud-setup-buildx-action@v0.0.4
+        uses: namespacelabs/nscloud-setup-buildx-action@v0
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
