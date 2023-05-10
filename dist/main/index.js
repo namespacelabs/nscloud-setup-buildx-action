@@ -4288,6 +4288,18 @@ module.exports = require("util");
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__nccwpck_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__nccwpck_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
@@ -4325,35 +4337,16 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
 "use strict";
-// ESM COMPAT FLAG
 __nccwpck_require__.r(__webpack_exports__);
-
-// EXPORTS
-__nccwpck_require__.d(__webpack_exports__, {
-  "nscRemoteBuilderName": () => (/* binding */ nscRemoteBuilderName)
-});
-
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(186);
-// EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
-var exec = __nccwpck_require__(514);
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __nccwpck_require__(147);
-// EXTERNAL MODULE: external "path"
-var external_path_ = __nccwpck_require__(17);
-;// CONCATENATED MODULE: ./common.ts
-
-
-const ProxyPidFile = tmpFile("buildkit-proxy.pid");
-function tmpFile(file) {
-    const tmpDir = external_path_.join(process.env.RUNNER_TEMP, "ns");
-    if (!external_fs_.existsSync(tmpDir)) {
-        external_fs_.mkdirSync(tmpDir);
-    }
-    return external_path_.join(tmpDir, file);
-}
-
-;// CONCATENATED MODULE: ./main.ts
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "nscRemoteBuilderName": () => (/* binding */ nscRemoteBuilderName)
+/* harmony export */ });
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(186);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(514);
+/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(_actions_exec__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(147);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__nccwpck_require__.n(fs__WEBPACK_IMPORTED_MODULE_2__);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -4366,7 +4359,6 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-
 const nscRemoteBuilderName = "remote-nsc";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -4374,7 +4366,7 @@ function run() {
         commandExists("nsc")
             .then(prepareBuildx)
             .catch(function () {
-            core.setFailed(`Namespace Cloud CLI not found.
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(`Namespace Cloud CLI not found.
 
 Please add a step this step to your workflow's job definition:
 
@@ -4385,49 +4377,47 @@ Please add a step this step to your workflow's job definition:
 function prepareBuildx() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const exists = yield core.group(`Ensure Namespace Builder proxy is already configured`, () => __awaiter(this, void 0, void 0, function* () {
+            const exists = yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Ensure Namespace Builder proxy is already configured`, () => __awaiter(this, void 0, void 0, function* () {
                 const builderExists = yield remoteNscBuilderExists();
                 if (builderExists) {
-                    core.info(`GitHub runner is already configured to use Namespace Cloud build cluster.`);
+                    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`GitHub runner is already configured to use Namespace Cloud build cluster.`);
                     return true;
                 }
-                core.info(`Namespace Builder is not yet configured.`);
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Namespace Builder is not yet configured.`);
                 return false;
             }));
             if (!exists) {
-                const sock = tmpFile("buildkit-proxy.sock");
-                yield core.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
+                yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
                     yield ensureNscloudToken();
-                    yield exec.exec(`nsc cluster proxy --kind=buildkit --cluster=build-cluster --sock_path=${sock} --background=${ProxyPidFile}`);
-                    yield exec.exec(`docker buildx create --name ${nscRemoteBuilderName} --driver remote unix://${sock} --use`);
+                    yield _actions_exec__WEBPACK_IMPORTED_MODULE_1__.exec(`nsc buildkit setup-buildx --name=${nscRemoteBuilderName} --background --use`);
                 }));
             }
-            yield core.group(`Builder`, () => __awaiter(this, void 0, void 0, function* () {
-                core.info(nscRemoteBuilderName);
+            yield _actions_core__WEBPACK_IMPORTED_MODULE_0__.group(`Builder`, () => __awaiter(this, void 0, void 0, function* () {
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(nscRemoteBuilderName);
             }));
             // New line to separate from groups.
-            core.info(`
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`
 Configured buildx to use remote Namespace Cloud build cluster.`);
         }
         catch (error) {
-            core.setFailed(error.message);
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
         }
     });
 }
 function ensureNscloudToken() {
     return __awaiter(this, void 0, void 0, function* () {
         const tokenFile = "/var/run/nsc/token.json";
-        if (external_fs_.existsSync(tokenFile)) {
-            core.exportVariable("NSC_TOKEN_FILE", tokenFile);
+        if (fs__WEBPACK_IMPORTED_MODULE_2__.existsSync(tokenFile)) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.exportVariable("NSC_TOKEN_FILE", tokenFile);
             return;
         }
         // We only need a valid token when opening the proxy
-        yield exec.exec("nsc auth exchange-github-token --ensure=5m");
+        yield _actions_exec__WEBPACK_IMPORTED_MODULE_1__.exec("nsc auth exchange-github-token --ensure=5m");
     });
 }
 function remoteNscBuilderExists() {
     return __awaiter(this, void 0, void 0, function* () {
-        const { stdout, stderr } = yield exec.getExecOutput(`docker buildx inspect ${nscRemoteBuilderName}`, null, { ignoreReturnCode: true, silent: true });
+        const { stdout, stderr } = yield _actions_exec__WEBPACK_IMPORTED_MODULE_1__.getExecOutput(`docker buildx inspect ${nscRemoteBuilderName}`, null, { ignoreReturnCode: true, silent: true });
         const builderNotFoundStr = `no builder "${nscRemoteBuilderName}" found`;
         return !(stdout.includes(builderNotFoundStr) || stderr.includes(builderNotFoundStr));
     });
