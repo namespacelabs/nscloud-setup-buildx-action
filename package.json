@@ -9,12 +9,8 @@
 		"command-exists": "^1.2.9"
 	},
 	"scripts": {
-		"build": "concurrently 'yarn build:main' 'yarn build:post'",
-		"watch": "concurrently 'yarn watch:main' 'yarn watch:post'",
-		"build:main": "ncc build main.ts --out dist/main",
-		"watch:main": "ncc build main.ts --out dist/main --watch",
-		"build:post": "ncc build post.ts --out dist/post",
-		"watch:post": "ncc build post.ts --out dist/post --watch",
+		"build": "ncc build main.ts --out dist/main",
+		"watch": "ncc build main.ts --out dist/main --watch",
 		"add": "git add dist/*"
 	},
 	"repository": {
