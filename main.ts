@@ -1,8 +1,7 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as fs from "fs";
-
-export const nscRemoteBuilderName = "remote-nsc";
+import { nscRemoteBuilderName } from "./common";
 
 async function run(): Promise<void> {
   var commandExists = require("command-exists");
@@ -40,7 +39,7 @@ async function prepareBuildx(): Promise<void> {
         await ensureNscloudToken();
 
         await exec.exec(
-          `nsc buildkit setup-buildx --name=${nscRemoteBuilderName} --background --use`
+          `nsc buildkit buildx setup --name=${nscRemoteBuilderName} --background --use`
         );
       });
     }

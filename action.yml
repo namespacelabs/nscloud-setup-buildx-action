@@ -4,3 +4,4 @@ description: "Configure buildx to use the Namespace Cloud build cluster"
 runs:
   using: node16
   main: dist/main/index.js
+  post: dist/post/index.js

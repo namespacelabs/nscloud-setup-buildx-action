@@ -3044,179 +3044,6 @@ function copyFile(srcFile, destFile, force) {
 
 /***/ }),
 
-/***/ 724:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-module.exports = __nccwpck_require__(325);
-
-
-/***/ }),
-
-/***/ 325:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-var exec = (__nccwpck_require__(81).exec);
-var execSync = (__nccwpck_require__(81).execSync);
-var fs = __nccwpck_require__(147);
-var path = __nccwpck_require__(17);
-var access = fs.access;
-var accessSync = fs.accessSync;
-var constants = fs.constants || fs;
-
-var isUsingWindows = process.platform == 'win32'
-
-var fileNotExists = function(commandName, callback){
-    access(commandName, constants.F_OK,
-    function(err){
-        callback(!err);
-    });
-};
-
-var fileNotExistsSync = function(commandName){
-    try{
-        accessSync(commandName, constants.F_OK);
-        return false;
-    }catch(e){
-        return true;
-    }
-};
-
-var localExecutable = function(commandName, callback){
-    access(commandName, constants.F_OK | constants.X_OK,
-        function(err){
-        callback(null, !err);
-    });
-};
-
-var localExecutableSync = function(commandName){
-    try{
-        accessSync(commandName, constants.F_OK | constants.X_OK);
-        return true;
-    }catch(e){
-        return false;
-    }
-}
-
-var commandExistsUnix = function(commandName, cleanedCommandName, callback) {
-
-    fileNotExists(commandName, function(isFile){
-
-        if(!isFile){
-            var child = exec('command -v ' + cleanedCommandName +
-                  ' 2>/dev/null' +
-                  ' && { echo >&1 ' + cleanedCommandName + '; exit 0; }',
-                  function (error, stdout, stderr) {
-                      callback(null, !!stdout);
-                  });
-            return;
-        }
-
-        localExecutable(commandName, callback);
-    });
-
-}
-
-var commandExistsWindows = function(commandName, cleanedCommandName, callback) {
-  // Regex from Julio from: https://stackoverflow.com/questions/51494579/regex-windows-path-validator
-  if (!(/^(?!(?:.*\s|.*\.|\W+)$)(?:[a-zA-Z]:)?(?:(?:[^<>:"\|\?\*\n])+(?:\/\/|\/|\\\\|\\)?)+$/m.test(commandName))) {
-    callback(null, false);
-    return;
-  }
-  var child = exec('where ' + cleanedCommandName,
-    function (error) {
-      if (error !== null){
-        callback(null, false);
-      } else {
-        callback(null, true);
-      }
-    }
-  )
-}
-
-var commandExistsUnixSync = function(commandName, cleanedCommandName) {
-  if(fileNotExistsSync(commandName)){
-      try {
-        var stdout = execSync('command -v ' + cleanedCommandName +
-              ' 2>/dev/null' +
-              ' && { echo >&1 ' + cleanedCommandName + '; exit 0; }'
-              );
-        return !!stdout;
-      } catch (error) {
-        return false;
-      }
-  }
-  return localExecutableSync(commandName);
-}
-
-var commandExistsWindowsSync = function(commandName, cleanedCommandName, callback) {
-  // Regex from Julio from: https://stackoverflow.com/questions/51494579/regex-windows-path-validator
-  if (!(/^(?!(?:.*\s|.*\.|\W+)$)(?:[a-zA-Z]:)?(?:(?:[^<>:"\|\?\*\n])+(?:\/\/|\/|\\\\|\\)?)+$/m.test(commandName))) {
-    return false;
-  }
-  try {
-      var stdout = execSync('where ' + cleanedCommandName, {stdio: []});
-      return !!stdout;
-  } catch (error) {
-      return false;
-  }
-}
-
-var cleanInput = function(s) {
-  if (/[^A-Za-z0-9_\/:=-]/.test(s)) {
-    s = "'"+s.replace(/'/g,"'\\''")+"'";
-    s = s.replace(/^(?:'')+/g, '') // unduplicate single-quote at the beginning
-      .replace(/\\'''/g, "\\'" ); // remove non-escaped single-quote if there are enclosed between 2 escaped
-  }
-  return s;
-}
-
-if (isUsingWindows) {
-  cleanInput = function(s) {
-    var isPathName = /[\\]/.test(s);
-    if (isPathName) {
-      var dirname = '"' + path.dirname(s) + '"';
-      var basename = '"' + path.basename(s) + '"';
-      return dirname + ':' + basename;
-    }
-    return '"' + s + '"';
-  }
-}
-
-module.exports = function commandExists(commandName, callback) {
-  var cleanedCommandName = cleanInput(commandName);
-  if (!callback && typeof Promise !== 'undefined') {
-    return new Promise(function(resolve, reject){
-      commandExists(commandName, function(error, output) {
-        if (output) {
-          resolve(commandName);
-        } else {
-          reject(error);
-        }
-      });
-    });
-  }
-  if (isUsingWindows) {
-    commandExistsWindows(commandName, cleanedCommandName, callback);
-  } else {
-    commandExistsUnix(commandName, cleanedCommandName, callback);
-  }
-};
-
-module.exports.sync = function(commandName) {
-  var cleanedCommandName = cleanInput(commandName);
-  if (isUsingWindows) {
-    return commandExistsWindowsSync(commandName, cleanedCommandName);
-  } else {
-    return commandExistsUnixSync(commandName, cleanedCommandName);
-  }
-};
-
-
-/***/ }),
-
 /***/ 294:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -4315,12 +4142,10 @@ __nccwpck_require__.r(__webpack_exports__);
 var core = __nccwpck_require__(186);
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
 var exec = __nccwpck_require__(514);
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __nccwpck_require__(147);
 ;// CONCATENATED MODULE: ./common.ts
 const nscRemoteBuilderName = "remote-nsc";
 
-;// CONCATENATED MODULE: ./main.ts
+;// CONCATENATED MODULE: ./post.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -4333,67 +4158,14 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        var commandExists = __nccwpck_require__(724);
-        commandExists("nsc")
-            .then(prepareBuildx)
-            .catch(function () {
-            core.setFailed(`Namespace Cloud CLI not found.
-
-Please add a step this step to your workflow's job definition:
-
-- uses: namespacelabs/nscloud-setup@v0`);
-        });
-    });
-}
-function prepareBuildx() {
-    return __awaiter(this, void 0, void 0, function* () {
         try {
-            const exists = yield core.group(`Ensure Namespace Builder proxy is already configured`, () => __awaiter(this, void 0, void 0, function* () {
-                const builderExists = yield remoteNscBuilderExists();
-                if (builderExists) {
-                    core.info(`GitHub runner is already configured to use Namespace Cloud build cluster.`);
-                    return true;
-                }
-                core.info(`Namespace Builder is not yet configured.`);
-                return false;
-            }));
-            if (!exists) {
-                yield core.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
-                    yield ensureNscloudToken();
-                    yield exec.exec(`nsc buildkit buildx setup --name=${nscRemoteBuilderName} --background --use`);
-                }));
-            }
-            yield core.group(`Builder`, () => __awaiter(this, void 0, void 0, function* () {
-                core.info(nscRemoteBuilderName);
-            }));
-            // New line to separate from groups.
-            core.info(`
-Configured buildx to use remote Namespace Cloud build cluster.`);
+            yield exec.exec(`nsc buildkit buildx cleanup --name=${nscRemoteBuilderName}`);
         }
         catch (error) {
             core.setFailed(error.message);
         }
-    });
-}
-function ensureNscloudToken() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const tokenFile = "/var/run/nsc/token.json";
-        if (external_fs_.existsSync(tokenFile)) {
-            core.exportVariable("NSC_TOKEN_FILE", tokenFile);
-            return;
-        }
-        // We only need a valid token when opening the proxy
-        yield exec.exec("nsc auth exchange-github-token --ensure=5m");
-    });
-}
-function remoteNscBuilderExists() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { stdout, stderr } = yield exec.getExecOutput(`docker buildx inspect ${nscRemoteBuilderName}`, null, { ignoreReturnCode: true, silent: true });
-        const builderNotFoundStr = `no builder "${nscRemoteBuilderName}" found`;
-        return !(stdout.includes(builderNotFoundStr) || stderr.includes(builderNotFoundStr));
     });
 }
 run();
