@@ -4161,7 +4161,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield exec.exec(`nsc buildkit buildx cleanup --name=${nscRemoteBuilderName}`);
+            yield exec.exec(`nsc docker buildx cleanup --name=${nscRemoteBuilderName}`);
         }
         catch (error) {
             core.setFailed(error.message);

@@ -39,7 +39,7 @@ async function prepareBuildx(): Promise<void> {
         await ensureNscloudToken();
 
         await exec.exec(
-          `nsc buildkit buildx setup --name=${nscRemoteBuilderName} --background --use`
+          `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use`
         );
       });
     }

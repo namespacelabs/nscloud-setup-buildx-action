@@ -4363,7 +4363,7 @@ function prepareBuildx() {
             if (!exists) {
                 yield core.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
                     yield ensureNscloudToken();
-                    yield exec.exec(`nsc buildkit buildx setup --name=${nscRemoteBuilderName} --background --use`);
+                    yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use`);
                 }));
             }
             yield core.group(`Builder`, () => __awaiter(this, void 0, void 0, function* () {
