@@ -14,7 +14,11 @@ permissions:
 
 jobs:
   build_and_push:
-    runs-on: nscloud-ubuntu-22.04-amd64-2x8
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, nscloud-ubuntu-22.04-amd64-2x8]
+    runs-on: ${{ matrix.os }}
     name: Build and push a sample application to Namespace Cloud
     timeout-minutes: 5
     steps:
