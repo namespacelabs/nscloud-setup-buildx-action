@@ -1,1 +1,1 @@
-export const nscRemoteBuilderName = "remote-nsc";
+export const nscRemoteBuilderName = "nsc-remote";

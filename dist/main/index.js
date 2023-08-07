@@ -4318,7 +4318,7 @@ var exec = __nccwpck_require__(514);
 // EXTERNAL MODULE: external "fs"
 var external_fs_ = __nccwpck_require__(147);
 ;// CONCATENATED MODULE: ./common.ts
-const nscRemoteBuilderName = "remote-nsc";
+const nscRemoteBuilderName = "nsc-remote";
 
 ;// CONCATENATED MODULE: ./main.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
