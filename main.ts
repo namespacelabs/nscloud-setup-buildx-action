@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as fs from "fs";
-import { nscRemoteBuilderName } from "./common";
+import { nscRemoteBuilderName, nscDebugFilePath, nscVmIdKey } from "./common";
 
 async function run(): Promise<void> {
   var commandExists = require("command-exists");
@@ -38,9 +38,18 @@ async function prepareBuildx(): Promise<void> {
       await core.group(`Proxy Buildkit from Namespace Cloud`, async () => {
         await ensureNscloudToken();
 
-        await exec.exec(
-          `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use`
-        );
+        const nscRunner = await isNscRunner();
+        if (nscRunner) {
+          core.debug(`Environment is Namespace Runner`);
+          await exec.exec(
+            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --debug_to_file=${nscDebugFilePath}`
+          );
+        } else {
+          core.debug(`Environment is not Namespace Runner`);
+          await exec.exec(
+            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use`
+          );
+        }
       });
     }
 
@@ -77,6 +86,11 @@ async function remoteNscBuilderExists(): Promise<boolean> {
   return !(
     stdout.includes(builderNotFoundStr) || stderr.includes(builderNotFoundStr)
   );
+}
+
+async function isNscRunner(): Promise<boolean> {
+  const vmID: string = process.env[`${nscVmIdKey}`] || "";
+  return vmID !== "";
 }
 
 run();

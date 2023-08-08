@@ -4319,6 +4319,8 @@ var exec = __nccwpck_require__(514);
 var external_fs_ = __nccwpck_require__(147);
 ;// CONCATENATED MODULE: ./common.ts
 const nscRemoteBuilderName = "nsc-remote";
+const nscDebugFilePath = "/home/runner/nsc/buildkit_proxy.log";
+const nscVmIdKey = 'NSC_VM_ID';
 
 ;// CONCATENATED MODULE: ./main.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -4363,7 +4365,15 @@ function prepareBuildx() {
             if (!exists) {
                 yield core.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
                     yield ensureNscloudToken();
-                    yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use`);
+                    const nscRunner = yield isNscRunner();
+                    if (nscRunner) {
+                        core.debug(`Environment is Namespace Runner`);
+                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --debug_to_file=${nscDebugFilePath}`);
+                    }
+                    else {
+                        core.debug(`Environment is not Namespace Runner`);
+                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use`);
+                    }
                 }));
             }
             yield core.group(`Builder`, () => __awaiter(this, void 0, void 0, function* () {
@@ -4394,6 +4404,12 @@ function remoteNscBuilderExists() {
         const { stdout, stderr } = yield exec.getExecOutput(`docker buildx inspect ${nscRemoteBuilderName}`, null, { ignoreReturnCode: true, silent: true });
         const builderNotFoundStr = `no builder "${nscRemoteBuilderName}" found`;
         return !(stdout.includes(builderNotFoundStr) || stderr.includes(builderNotFoundStr));
+    });
+}
+function isNscRunner() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const vmID = process.env[`${nscVmIdKey}`] || "";
+        return vmID !== "";
     });
 }
 run();
