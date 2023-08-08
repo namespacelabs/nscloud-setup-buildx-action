@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as fs from "fs";
-import { nscRemoteBuilderName, nscDebugFilePath, nscVmIdKey } from "./common";
+import { nscRemoteBuilderName, nscDebugFolder, nscVmIdKey } from "./common";
 
 async function run(): Promise<void> {
   var commandExists = require("command-exists");
@@ -42,7 +42,7 @@ async function prepareBuildx(): Promise<void> {
         if (nscRunner) {
           core.debug(`Environment is Namespace Runner`);
           await exec.exec(
-            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --debug_to_file=${nscDebugFilePath}`
+            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --background_debug_dir=${nscDebugFolder}`
           );
         } else {
           core.debug(`Environment is not Namespace Runner`);

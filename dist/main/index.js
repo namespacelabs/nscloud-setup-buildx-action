@@ -4319,7 +4319,7 @@ var exec = __nccwpck_require__(514);
 var external_fs_ = __nccwpck_require__(147);
 ;// CONCATENATED MODULE: ./common.ts
 const nscRemoteBuilderName = "nsc-remote";
-const nscDebugFilePath = "/home/runner/nsc/buildkit_proxy.log";
+const nscDebugFolder = "/home/runner/nsc";
 const nscVmIdKey = 'NSC_VM_ID';
 
 ;// CONCATENATED MODULE: ./main.ts
@@ -4368,7 +4368,7 @@ function prepareBuildx() {
                     const nscRunner = yield isNscRunner();
                     if (nscRunner) {
                         core.debug(`Environment is Namespace Runner`);
-                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --debug_to_file=${nscDebugFilePath}`);
+                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --background_debug_dir=${nscDebugFolder}`);
                     }
                     else {
                         core.debug(`Environment is not Namespace Runner`);
