@@ -4315,8 +4315,8 @@ __nccwpck_require__.r(__webpack_exports__);
 var core = __nccwpck_require__(186);
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
 var exec = __nccwpck_require__(514);
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __nccwpck_require__(147);
+;// CONCATENATED MODULE: external "node:fs"
+const external_node_fs_namespaceObject = require("node:fs");
 ;// CONCATENATED MODULE: ./common.ts
 const nscRemoteBuilderName = "nsc-remote";
 const nscDebugFolder = "/home/runner/nsc";
@@ -4338,10 +4338,10 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        var commandExists = __nccwpck_require__(724);
+        const commandExists = __nccwpck_require__(724);
         commandExists("nsc")
             .then(prepareBuildx)
-            .catch(function () {
+            .catch(() => {
             core.setFailed(`Namespace Cloud CLI not found.
 
 Please add a step this step to your workflow's job definition:
@@ -4353,30 +4353,30 @@ Please add a step this step to your workflow's job definition:
 function prepareBuildx() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const exists = yield core.group(`Ensure Namespace Builder proxy is already configured`, () => __awaiter(this, void 0, void 0, function* () {
+            const exists = yield core.group("Check if Namespace Builder proxy is already configured", () => __awaiter(this, void 0, void 0, function* () {
                 const builderExists = yield remoteNscBuilderExists();
                 if (builderExists) {
-                    core.info(`GitHub runner is already configured to use Namespace Cloud build cluster.`);
+                    core.info("GitHub runner is already configured to use Namespace Cloud build cluster.");
                     return true;
                 }
-                core.info(`Namespace Builder is not yet configured.`);
+                core.info("Namespace Builder is not yet configured.");
                 return false;
             }));
             if (!exists) {
-                yield core.group(`Proxy Buildkit from Namespace Cloud`, () => __awaiter(this, void 0, void 0, function* () {
+                yield core.group("Proxy Buildkit from Namespace Cloud", () => __awaiter(this, void 0, void 0, function* () {
                     yield ensureNscloudToken();
                     const nscRunner = yield isNscRunner();
                     if (nscRunner) {
-                        core.debug(`Environment is Namespace Runner`);
-                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --background_debug_dir=${nscDebugFolder}`);
+                        core.debug("Environment is Namespace Runner");
+                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --default_load --background_debug_dir=${nscDebugFolder}`);
                     }
                     else {
-                        core.debug(`Environment is not Namespace Runner`);
-                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use`);
+                        core.debug("Environment is not Namespace Runner");
+                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --default_load`);
                     }
                 }));
             }
-            yield core.group(`Builder`, () => __awaiter(this, void 0, void 0, function* () {
+            yield core.group("Builder", () => __awaiter(this, void 0, void 0, function* () {
                 core.info(nscRemoteBuilderName);
             }));
             // New line to separate from groups.
@@ -4391,7 +4391,7 @@ Configured buildx to use remote Namespace Cloud build cluster.`);
 function ensureNscloudToken() {
     return __awaiter(this, void 0, void 0, function* () {
         const tokenFile = "/var/run/nsc/token.json";
-        if (external_fs_.existsSync(tokenFile)) {
+        if (external_node_fs_namespaceObject.existsSync(tokenFile)) {
             core.exportVariable("NSC_TOKEN_FILE", tokenFile);
             return;
         }

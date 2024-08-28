@@ -1,14 +1,14 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
-import * as fs from "fs";
+import * as fs from "node:fs";
 import { nscRemoteBuilderName, nscDebugFolder, nscVmIdKey } from "./common";
 
 async function run(): Promise<void> {
-  var commandExists = require("command-exists");
+  const commandExists = require("command-exists");
 
   commandExists("nsc")
     .then(prepareBuildx)
-    .catch(function () {
+    .catch(() => {
       core.setFailed(`Namespace Cloud CLI not found.
 
 Please add a step this step to your workflow's job definition:
@@ -20,40 +20,40 @@ Please add a step this step to your workflow's job definition:
 async function prepareBuildx(): Promise<void> {
   try {
     const exists = await core.group(
-      `Ensure Namespace Builder proxy is already configured`,
+      "Check if Namespace Builder proxy is already configured",
       async (): Promise<boolean> => {
         const builderExists = await remoteNscBuilderExists();
         if (builderExists) {
           core.info(
-            `GitHub runner is already configured to use Namespace Cloud build cluster.`
+            "GitHub runner is already configured to use Namespace Cloud build cluster."
           );
           return true;
         }
-        core.info(`Namespace Builder is not yet configured.`);
+        core.info("Namespace Builder is not yet configured.");
         return false;
       }
     );
 
     if (!exists) {
-      await core.group(`Proxy Buildkit from Namespace Cloud`, async () => {
+      await core.group("Proxy Buildkit from Namespace Cloud", async () => {
         await ensureNscloudToken();
 
         const nscRunner = await isNscRunner();
         if (nscRunner) {
-          core.debug(`Environment is Namespace Runner`);
+          core.debug("Environment is Namespace Runner");
           await exec.exec(
-            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --background_debug_dir=${nscDebugFolder}`
+            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --default_load --background_debug_dir=${nscDebugFolder}`
           );
         } else {
-          core.debug(`Environment is not Namespace Runner`);
+          core.debug("Environment is not Namespace Runner");
           await exec.exec(
-            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use`
+            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --default_load`
           );
         }
       });
     }
 
-    await core.group(`Builder`, async () => {
+    await core.group("Builder", async () => {
       core.info(nscRemoteBuilderName);
     });
 
