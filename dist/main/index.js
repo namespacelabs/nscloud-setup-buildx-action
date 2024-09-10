@@ -4365,14 +4365,15 @@ function prepareBuildx() {
             if (!exists) {
                 yield core.group("Proxy Buildkit from Namespace Cloud", () => __awaiter(this, void 0, void 0, function* () {
                     yield ensureNscloudToken();
+                    const loadToDockerFlag = parseInputLoadToDocker() ? "--default_load" : "";
                     const nscRunner = yield isNscRunner();
                     if (nscRunner) {
                         core.debug("Environment is Namespace Runner");
-                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --default_load --background_debug_dir=${nscDebugFolder}`);
+                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use ${loadToDockerFlag} --background_debug_dir=${nscDebugFolder}`);
                     }
                     else {
                         core.debug("Environment is not Namespace Runner");
-                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --default_load`);
+                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use ${loadToDockerFlag}`);
                     }
                 }));
             }
@@ -4387,6 +4388,14 @@ Configured buildx to use remote Namespace Cloud build cluster.`);
             core.setFailed(error.message);
         }
     });
+}
+function parseInputLoadToDocker() {
+    const loadToDockerString = (core.getInput('load-to-docker') || '').toUpperCase();
+    core.debug(`load-to-docker = ${loadToDockerString}`);
+    if (loadToDockerString === 'TRUE') {
+        return true;
+    }
+    return false;
 }
 function ensureNscloudToken() {
     return __awaiter(this, void 0, void 0, function* () {

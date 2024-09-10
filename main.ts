@@ -38,16 +38,17 @@ async function prepareBuildx(): Promise<void> {
       await core.group("Proxy Buildkit from Namespace Cloud", async () => {
         await ensureNscloudToken();
 
+        const loadToDockerFlag = parseInputLoadToDocker() ? "--default_load" : "";
         const nscRunner = await isNscRunner();
         if (nscRunner) {
           core.debug("Environment is Namespace Runner");
           await exec.exec(
-            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --default_load --background_debug_dir=${nscDebugFolder}`
+            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use ${loadToDockerFlag} --background_debug_dir=${nscDebugFolder}`
           );
         } else {
           core.debug("Environment is not Namespace Runner");
           await exec.exec(
-            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use --default_load`
+            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use ${loadToDockerFlag}`
           );
         }
       });
@@ -63,6 +64,19 @@ Configured buildx to use remote Namespace Cloud build cluster.`);
   } catch (error) {
     core.setFailed(error.message);
   }
+}
+
+function parseInputLoadToDocker(): boolean {
+  const loadToDockerString = (
+    core.getInput('load-to-docker') || ''
+  ).toUpperCase()
+
+  core.debug(`load-to-docker = ${loadToDockerString}`)
+
+  if (loadToDockerString === 'TRUE') {
+    return true
+  }
+  return false
 }
 
 async function ensureNscloudToken() {
