@@ -1,6 +1,11 @@
 name: '"Configure buildx with Namespace Cloud" Action For GitHub Actions'
 description: "Configure buildx to use the Namespace Cloud build cluster"
 
+inputs:
+  load-to-docker:
+    description: 'Whether to load images to local docker engine'
+    default: "true"
+
 runs:
   using: node20
   main: dist/main/index.js
