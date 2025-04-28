@@ -29,10 +29,23 @@ jobs:
         uses: namespacelabs/nscloud-setup@v0
       - name: Configure buildx
         uses: ./ # Uses an action in the root directory
+      - name: docker buildx ls
+        run: |
+          docker buildx ls
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
           context: .
+          file: .github/workflows/testdata/Dockerfile
+          push: ${{ github.ref_name == 'main' }}
+          tags: "${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:latest"
+          cache-from: "type=registry,ref=${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:buildcache"
+          cache-to: "type=registry,ref=${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:buildcache,mode=max"
+      - name: Build and push arm64
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          platforms: linux/arm64
           file: .github/workflows/testdata/Dockerfile
           push: ${{ github.ref_name == 'main' }}
           tags: "${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:latest"
