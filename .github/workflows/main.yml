@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, nscloud-ubuntu-22.04-amd64-2x8]
+        os: [ubuntu-22.04, nscloud-ubuntu-22.04-amd64-2x8, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     name: Build and push a sample application to Namespace Cloud
     timeout-minutes: 5
@@ -29,8 +29,58 @@ jobs:
         uses: namespacelabs/nscloud-setup@v0
       - name: Configure buildx
         uses: ./ # Uses an action in the root directory
+      - name: docker buildx ls
+        run: |
+          docker buildx ls
       - name: Build and push
         uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: .github/workflows/testdata/Dockerfile
+          push: ${{ github.ref_name == 'main' }}
+          tags: "${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:latest"
+          cache-from: "type=registry,ref=${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:buildcache"
+          cache-to: "type=registry,ref=${{ steps.nscloud.outputs.registry-address }}/nscloud-setup-buildx-action/testdata/server:buildcache,mode=max"
+
+  build_and_push_published:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    name: Build and push a sample application to Namespace Cloud - use published action
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure access to Namespace
+        id: nscloud
+        uses: namespacelabs/nscloud-setup@v0
+      - name: Configure buildx
+        uses: namespacelabs/nscloud-setup-buildx-action@v0
+      - name: docker buildx ls
+        run: |
+          docker buildx ls
+      - name: Debug info - server cert
+        run: |
+          echo "Server CA dump"
+          cat /home/runner/.config/ns/buildkit/proxy/server_amd64_cert.pem
+          echo "openssl s_client"
+          openssl s_client -showcerts -servername 6f4l96jja7tf0-linux_amd64.build.zrh.namespaceapis.com -connect 6f4l96jja7tf0-linux_amd64.build.zrh.namespaceapis.com:443 </dev/null
+      - name: Debug info - client cert
+        run: |
+          echo "client key + cert lines: "
+          cat /home/runner/.config/ns/buildkit/proxy/client_cert_and_key.pem | wc -l
+          echo "cert + key CERTIFICATE lines"
+          cat /home/runner/.config/ns/buildkit/proxy/client_cert_and_key.pem | grep CERTIFICATE
+          echo "cert + key read"
+          openssl x509 -inform pem -in /home/runner/.config/ns/buildkit/proxy/client_cert_and_key.pem -noout -text
+          echo "grpcurl"
+          go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
+          ~/go/bin/grpcurl -vv --cacert /home/runner/.config/ns/buildkit/proxy/server_amd64_cert.pem -cert /home/runner/.config/ns/buildkit/proxy/client_cert_and_key.pem -key /home/runner/.config/ns/buildkit/proxy/client_cert_and_key.pem 6f4l96jja7tf0-linux_amd64.build.zrh.namespaceapis.com:443 test.server.Service/TestMethod  || true
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: .github/workflows/testdata/Dockerfile
