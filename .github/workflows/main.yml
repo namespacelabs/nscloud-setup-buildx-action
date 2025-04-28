@@ -29,6 +29,9 @@ jobs:
         uses: namespacelabs/nscloud-setup@v0
       - name: Configure buildx
         uses: ./ # Uses an action in the root directory
+      - name: docker buildx ls
+        run: |
+          docker buildx ls
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
@@ -55,6 +58,9 @@ jobs:
         uses: namespacelabs/nscloud-setup@v0
       - name: Configure buildx
         uses: namespacelabs/nscloud-setup-buildx-action@v0
+      - name: docker buildx ls
+        run: |
+          docker buildx ls
       - name: Debug info - server cert
         run: |
           echo "Server CA dump"
