@@ -1,4 +1,4 @@
-# Create a Namespace Cloud cluster
+# Access to Namespace Remote Builders
 
 This repository hosts a GitHub action that configures buildx to use a
 [Namespace Cloud](https://cloud.namespace.so) build cluster.
