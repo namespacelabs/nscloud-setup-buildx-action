@@ -4451,7 +4451,7 @@ function nscBuilderStatus() {
 function nscBuilderExists(builderName) {
     return __awaiter(this, void 0, void 0, function* () {
         const { stdout, stderr } = yield exec.getExecOutput(`docker buildx inspect ${builderName}`, null, { ignoreReturnCode: true });
-        const builderNotFoundStr = `no builder "$builderName}" found`;
+        const builderNotFoundStr = `no builder "${builderName}" found`;
         return !(stdout.includes(builderNotFoundStr) || stderr.includes(builderNotFoundStr));
     });
 }

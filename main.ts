@@ -159,7 +159,7 @@ async function nscBuilderExists(builderName: string): Promise<boolean> {
     null,
     { ignoreReturnCode: true }
   );
-  const builderNotFoundStr = `no builder "$builderName}" found`;
+  const builderNotFoundStr = `no builder "${builderName}" found`;
   return !(
     stdout.includes(builderNotFoundStr) || stderr.includes(builderNotFoundStr)
   );
