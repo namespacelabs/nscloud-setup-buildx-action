@@ -3,6 +3,8 @@
 This repository hosts a GitHub action that configures buildx to use a
 [Namespace Cloud](https://cloud.namespace.so) build cluster.
 
+**Note:** Workflows using [Namespace-managed GitHub Runners](https://namespace.so/docs/solutions/github-actions) can skip `nscloud-setup-buildx-action`. Check out the [migration guide](https://namespace.so/docs/solutions/github-actions/migration#faster-docker-builds) for more details.
+
 ## Example
 
 ```yaml

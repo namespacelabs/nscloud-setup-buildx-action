@@ -4319,6 +4319,7 @@ var exec = __nccwpck_require__(514);
 const external_node_fs_namespaceObject = require("node:fs");
 ;// CONCATENATED MODULE: ./common.ts
 const nscRemoteBuilderName = "nsc-remote";
+const nscInRunnerBuilderName = "in-runner-builder";
 const nscDebugFolder = "/home/runner/nsc";
 const nscVmIdKey = 'NSC_VM_ID';
 
@@ -4354,9 +4355,19 @@ function prepareBuildx() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const exists = yield core.group("Check if Namespace Builder proxy is already configured", () => __awaiter(this, void 0, void 0, function* () {
-                const builderExists = yield remoteNscBuilderExists();
-                if (builderExists) {
-                    core.info("GitHub runner is already configured to use Namespace Cloud build cluster.");
+                const remoteBuilderConfigured = yield nscBuilderStatus();
+                if (remoteBuilderConfigured) {
+                    core.info("GitHub runner is already configured to use Namespace Cloud build cluster (source: nsc).");
+                    return true;
+                }
+                const remoteBuilderExists = yield nscBuilderExists(nscRemoteBuilderName);
+                if (remoteBuilderExists) {
+                    core.info("GitHub runner is already configured to use Namespace Cloud build cluster (source: buildx).");
+                    return true;
+                }
+                const inRunnerBuilderExists = yield nscBuilderExists(nscInRunnerBuilderName);
+                if (inRunnerBuilderExists) {
+                    core.info("GitHub runner is already configured to use Namespace Locally cached builder.");
                     return true;
                 }
                 core.info("Namespace Builder is not yet configured.");
@@ -4408,10 +4419,30 @@ function ensureNscloudToken() {
         yield exec.exec("nsc auth exchange-github-token --ensure=5m");
     });
 }
-function remoteNscBuilderExists() {
+function nscBuilderStatus() {
     return __awaiter(this, void 0, void 0, function* () {
-        const { stdout, stderr } = yield exec.getExecOutput(`docker buildx inspect ${nscRemoteBuilderName}`, null, { ignoreReturnCode: true, silent: true });
-        const builderNotFoundStr = `no builder "${nscRemoteBuilderName}" found`;
+        const { stdout, stderr } = yield exec.getExecOutput(`nsc docker buildx status --output=json`, null, { ignoreReturnCode: true, silent: true });
+        const parsed = JSON.parse(stdout);
+        if (!parsed || !Array.isArray(parsed)) {
+            return false;
+        }
+        const elems = (parsed);
+        for (const elem of elems) {
+            if (!elem.hasOwnProperty("Status")) {
+                continue;
+            }
+            const status = elem["Status"];
+            if (status == "Starting" || status == "Running" || status == "ServerSideProxy") {
+                return true;
+            }
+        }
+        return false;
+    });
+}
+function nscBuilderExists(builderName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { stdout, stderr } = yield exec.getExecOutput(`docker buildx inspect ${builderName}`, null, { ignoreReturnCode: true, silent: true });
+        const builderNotFoundStr = `no builder "$builderName}" found`;
         return !(stdout.includes(builderNotFoundStr) || stderr.includes(builderNotFoundStr));
     });
 }
