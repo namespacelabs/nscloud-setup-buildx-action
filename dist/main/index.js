@@ -4376,7 +4376,9 @@ function prepareBuildx() {
             if (!exists) {
                 yield core.group("Proxy Buildkit from Namespace Cloud", () => __awaiter(this, void 0, void 0, function* () {
                     yield ensureNscloudToken();
-                    const loadToDockerFlag = parseInputLoadToDocker() ? "--default_load" : "";
+                    const loadToDockerFlag = parseInputLoadToDocker()
+                        ? "--default_load"
+                        : "";
                     const nscRunner = yield isNscRunner();
                     if (nscRunner) {
                         core.debug("Environment is Namespace Runner");
@@ -4401,9 +4403,9 @@ Configured buildx to use remote Namespace Cloud build cluster.`);
     });
 }
 function parseInputLoadToDocker() {
-    const loadToDockerString = (core.getInput('load-to-docker') || '').toUpperCase();
+    const loadToDockerString = (core.getInput("load-to-docker") || "").toUpperCase();
     core.debug(`load-to-docker = ${loadToDockerString}`);
-    if (loadToDockerString === 'TRUE') {
+    if (loadToDockerString === "TRUE") {
         return true;
     }
     return false;
@@ -4421,18 +4423,20 @@ function ensureNscloudToken() {
 }
 function nscBuilderStatus() {
     return __awaiter(this, void 0, void 0, function* () {
-        const { stdout, stderr } = yield exec.getExecOutput(`nsc docker buildx status --output=json`, null, { ignoreReturnCode: true, silent: true });
+        const { stdout, stderr } = yield exec.getExecOutput(`nsc docker buildx status --output=json`, null, { ignoreReturnCode: true });
         const parsed = JSON.parse(stdout);
         if (!parsed || !Array.isArray(parsed)) {
             return false;
         }
-        const elems = (parsed);
+        const elems = parsed;
         for (const elem of elems) {
             if (!elem.hasOwnProperty("Status")) {
                 continue;
             }
             const status = elem["Status"];
-            if (status == "Starting" || status == "Running" || status == "ServerSideProxy") {
+            if (status == "Starting" ||
+                status == "Running" ||
+                status == "ServerSideProxy") {
                 return true;
             }
         }
@@ -4441,7 +4445,7 @@ function nscBuilderStatus() {
 }
 function nscBuilderExists(builderName) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { stdout, stderr } = yield exec.getExecOutput(`docker buildx inspect ${builderName}`, null, { ignoreReturnCode: true, silent: true });
+        const { stdout, stderr } = yield exec.getExecOutput(`docker buildx inspect ${builderName}`, null, { ignoreReturnCode: true });
         const builderNotFoundStr = `no builder "$builderName}" found`;
         return !(stdout.includes(builderNotFoundStr) || stderr.includes(builderNotFoundStr));
     });

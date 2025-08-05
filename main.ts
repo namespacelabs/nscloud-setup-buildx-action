@@ -1,7 +1,12 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as fs from "node:fs";
-import { nscRemoteBuilderName, nscDebugFolder, nscVmIdKey, nscInRunnerBuilderName } from "./common";
+import {
+  nscRemoteBuilderName,
+  nscDebugFolder,
+  nscVmIdKey,
+  nscInRunnerBuilderName,
+} from "./common";
 
 async function run(): Promise<void> {
   const commandExists = require("command-exists");
@@ -29,8 +34,10 @@ async function prepareBuildx(): Promise<void> {
           );
           return true;
         }
-        
-        const remoteBuilderExists = await nscBuilderExists(nscRemoteBuilderName);
+
+        const remoteBuilderExists = await nscBuilderExists(
+          nscRemoteBuilderName
+        );
         if (remoteBuilderExists) {
           core.info(
             "GitHub runner is already configured to use Namespace Cloud build cluster (source: buildx)."
@@ -38,7 +45,9 @@ async function prepareBuildx(): Promise<void> {
           return true;
         }
 
-        const inRunnerBuilderExists = await nscBuilderExists(nscInRunnerBuilderName);
+        const inRunnerBuilderExists = await nscBuilderExists(
+          nscInRunnerBuilderName
+        );
         if (inRunnerBuilderExists) {
           core.info(
             "GitHub runner is already configured to use Namespace Locally cached builder."
@@ -55,7 +64,9 @@ async function prepareBuildx(): Promise<void> {
       await core.group("Proxy Buildkit from Namespace Cloud", async () => {
         await ensureNscloudToken();
 
-        const loadToDockerFlag = parseInputLoadToDocker() ? "--default_load" : "";
+        const loadToDockerFlag = parseInputLoadToDocker()
+          ? "--default_load"
+          : "";
         const nscRunner = await isNscRunner();
         if (nscRunner) {
           core.debug("Environment is Namespace Runner");
@@ -85,15 +96,15 @@ Configured buildx to use remote Namespace Cloud build cluster.`);
 
 function parseInputLoadToDocker(): boolean {
   const loadToDockerString = (
-    core.getInput('load-to-docker') || ''
-  ).toUpperCase()
+    core.getInput("load-to-docker") || ""
+  ).toUpperCase();
 
-  core.debug(`load-to-docker = ${loadToDockerString}`)
+  core.debug(`load-to-docker = ${loadToDockerString}`);
 
-  if (loadToDockerString === 'TRUE') {
-    return true
+  if (loadToDockerString === "TRUE") {
+    return true;
   }
-  return false
+  return false;
 }
 
 async function ensureNscloudToken() {
@@ -111,34 +122,38 @@ async function nscBuilderStatus(): Promise<boolean> {
   const { stdout, stderr } = await exec.getExecOutput(
     `nsc docker buildx status --output=json`,
     null,
-    { ignoreReturnCode: true, silent: true }
+    { ignoreReturnCode: true }
   );
-  
-  const parsed = JSON.parse(stdout)
+
+  const parsed = JSON.parse(stdout);
   if (!parsed || !Array.isArray(parsed)) {
-    return false
+    return false;
   }
-  
-  const elems = <Array<any>>(parsed)
+
+  const elems = <Array<any>>parsed;
   for (const elem of elems) {
     if (!elem.hasOwnProperty("Status")) {
-      continue
+      continue;
     }
 
-    const status = elem["Status"]
-    if (status == "Starting" || status == "Running" || status == "ServerSideProxy") {
-      return true
+    const status = elem["Status"];
+    if (
+      status == "Starting" ||
+      status == "Running" ||
+      status == "ServerSideProxy"
+    ) {
+      return true;
     }
   }
-  
-  return false
+
+  return false;
 }
 
 async function nscBuilderExists(builderName: string): Promise<boolean> {
   const { stdout, stderr } = await exec.getExecOutput(
     `docker buildx inspect ${builderName}`,
     null,
-    { ignoreReturnCode: true, silent: true }
+    { ignoreReturnCode: true }
   );
   const builderNotFoundStr = `no builder "$builderName}" found`;
   return !(
