@@ -119,31 +119,35 @@ async function ensureNscloudToken() {
 }
 
 async function nscBuilderStatus(): Promise<boolean> {
-  const { stdout, stderr } = await exec.getExecOutput(
+  const { stdout } = await exec.getExecOutput(
     `nsc docker buildx status --output=json`,
     null,
     { ignoreReturnCode: true }
   );
 
-  const parsed = JSON.parse(stdout);
-  if (!parsed || !Array.isArray(parsed)) {
-    return false;
-  }
-
-  const elems = <Array<any>>parsed;
-  for (const elem of elems) {
-    if (!elem.hasOwnProperty("Status")) {
-      continue;
+  try {
+    const parsed = JSON.parse(stdout);
+    if (!parsed || !Array.isArray(parsed)) {
+      return false;
     }
 
-    const status = elem["Status"];
-    if (
-      status == "Starting" ||
-      status == "Running" ||
-      status == "ServerSideProxy"
-    ) {
-      return true;
+    const elems = <Array<any>>parsed;
+    for (const elem of elems) {
+      if (!elem.hasOwnProperty("Status")) {
+        continue;
+      }
+
+      const status = elem["Status"];
+      if (
+        status == "Starting" ||
+        status == "Running" ||
+        status == "ServerSideProxy"
+      ) {
+        return true;
+      }
     }
+  } catch (error) {
+    core.warning(error.message);
   }
 
   return false;

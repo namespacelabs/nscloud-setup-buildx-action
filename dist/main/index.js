@@ -4423,22 +4423,27 @@ function ensureNscloudToken() {
 }
 function nscBuilderStatus() {
     return __awaiter(this, void 0, void 0, function* () {
-        const { stdout, stderr } = yield exec.getExecOutput(`nsc docker buildx status --output=json`, null, { ignoreReturnCode: true });
-        const parsed = JSON.parse(stdout);
-        if (!parsed || !Array.isArray(parsed)) {
-            return false;
+        const { stdout } = yield exec.getExecOutput(`nsc docker buildx status --output=json`, null, { ignoreReturnCode: true });
+        try {
+            const parsed = JSON.parse(stdout);
+            if (!parsed || !Array.isArray(parsed)) {
+                return false;
+            }
+            const elems = parsed;
+            for (const elem of elems) {
+                if (!elem.hasOwnProperty("Status")) {
+                    continue;
+                }
+                const status = elem["Status"];
+                if (status == "Starting" ||
+                    status == "Running" ||
+                    status == "ServerSideProxy") {
+                    return true;
+                }
+            }
         }
-        const elems = parsed;
-        for (const elem of elems) {
-            if (!elem.hasOwnProperty("Status")) {
-                continue;
-            }
-            const status = elem["Status"];
-            if (status == "Starting" ||
-                status == "Running" ||
-                status == "ServerSideProxy") {
-                return true;
-            }
+        catch (error) {
+            core.warning(error.message);
         }
         return false;
     });
