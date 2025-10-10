@@ -4318,10 +4318,18 @@ var exec = __nccwpck_require__(514);
 ;// CONCATENATED MODULE: external "node:fs"
 const external_node_fs_namespaceObject = require("node:fs");
 ;// CONCATENATED MODULE: ./common.ts
+
 const nscRemoteBuilderName = "nsc-remote";
 const nscInRunnerBuilderName = "in-runner-builder";
 const nscDebugFolder = "/home/runner/nsc";
-const nscVmIdKey = 'NSC_VM_ID';
+const nscVmIdKey = "NSC_VM_ID";
+function getBuilderName() {
+    const customName = core.getInput("builder-name");
+    if (customName !== "") {
+        return customName;
+    }
+    return nscRemoteBuilderName;
+}
 
 ;// CONCATENATED MODULE: ./main.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -4376,22 +4384,27 @@ function prepareBuildx() {
             if (!exists) {
                 yield core.group("Proxy Buildkit from Namespace Cloud", () => __awaiter(this, void 0, void 0, function* () {
                     yield ensureNscloudToken();
-                    const loadToDockerFlag = parseInputLoadToDocker()
-                        ? "--default_load"
-                        : "";
+                    let cmd = `nsc docker buildx setup --name=${getBuilderName()} --use`;
+                    if (parseInputLoadToDocker()) {
+                        cmd = `${cmd} --default_load`;
+                    }
+                    const exp = core.getInput("experimental");
+                    if (exp !== "") {
+                        cmd = `${cmd} --experimental ${exp}`;
+                    }
                     const nscRunner = yield isNscRunner();
                     if (nscRunner) {
                         core.debug("Environment is Namespace Runner");
-                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use ${loadToDockerFlag} --background_debug_dir=${nscDebugFolder}`);
+                        cmd = `${cmd} --background_debug_dir=${nscDebugFolder}`;
                     }
                     else {
                         core.debug("Environment is not Namespace Runner");
-                        yield exec.exec(`nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use ${loadToDockerFlag}`);
                     }
+                    yield exec.exec(cmd);
                 }));
             }
             yield core.group("Builder", () => __awaiter(this, void 0, void 0, function* () {
-                core.info(nscRemoteBuilderName);
+                core.info(getBuilderName());
             }));
             // New line to separate from groups.
             core.info(`

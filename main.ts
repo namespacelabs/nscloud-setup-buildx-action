@@ -6,6 +6,7 @@ import {
   nscDebugFolder,
   nscVmIdKey,
   nscInRunnerBuilderName,
+  getBuilderName,
 } from "./common";
 
 async function run(): Promise<void> {
@@ -64,26 +65,31 @@ async function prepareBuildx(): Promise<void> {
       await core.group("Proxy Buildkit from Namespace Cloud", async () => {
         await ensureNscloudToken();
 
-        const loadToDockerFlag = parseInputLoadToDocker()
-          ? "--default_load"
-          : "";
+        let cmd = `nsc docker buildx setup --name=${getBuilderName()} --use`;
+
+        if (parseInputLoadToDocker()) {
+          cmd = `${cmd} --default_load`;
+        }
+
+        const exp = core.getInput("experimental");
+        if (exp !== "") {
+          cmd = `${cmd} --experimental ${exp}`;
+        }
+
         const nscRunner = await isNscRunner();
         if (nscRunner) {
           core.debug("Environment is Namespace Runner");
-          await exec.exec(
-            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use ${loadToDockerFlag} --background_debug_dir=${nscDebugFolder}`
-          );
+          cmd = `${cmd} --background_debug_dir=${nscDebugFolder}`;
         } else {
           core.debug("Environment is not Namespace Runner");
-          await exec.exec(
-            `nsc docker buildx setup --name=${nscRemoteBuilderName} --background --use ${loadToDockerFlag}`
-          );
         }
+
+        await exec.exec(cmd);
       });
     }
 
     await core.group("Builder", async () => {
-      core.info(nscRemoteBuilderName);
+      core.info(getBuilderName());
     });
 
     // New line to separate from groups.
