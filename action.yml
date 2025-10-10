@@ -2,9 +2,15 @@ name: '"Configure buildx with Namespace Cloud" Action For GitHub Actions'
 description: "Configure buildx to use the Namespace Cloud build cluster"
 
 inputs:
+  builder-name:
+    description: 'The name of the builder configuration to be configured.'
+    default: ""
   load-to-docker:
     description: 'Whether to load images to local docker engine'
     default: "true"
+  experimental:
+    description: 'A set of experimental configurations passed to builder configuration.'
+    default: ""
 
 runs:
   using: node20
