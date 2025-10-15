@@ -18,6 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, nscloud-ubuntu-22.04-amd64-2x8]
+        wait-for-builder: [false, true]
     runs-on: ${{ matrix.os }}
     name: Build and push a sample application to Namespace Cloud
     timeout-minutes: 5
@@ -29,6 +30,8 @@ jobs:
         uses: namespacelabs/nscloud-setup@v0
       - name: Configure buildx
         uses: ./ # Uses an action in the root directory
+        with:
+          wait-for-builder: ${{ matrix.wait-for-builder }}
       - name: docker buildx ls
         run: |
           docker buildx ls
