@@ -8,6 +8,9 @@ inputs:
   load-to-docker:
     description: 'Whether to load images to local docker engine'
     default: "true"
+  wait-for-builder:
+    description: 'If true, creates the build clusters eagerly and waits for them to be available'
+    default: "false"
   experimental:
     description: 'A set of experimental configurations passed to builder configuration.'
     default: ""

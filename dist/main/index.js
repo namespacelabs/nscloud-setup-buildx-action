@@ -4388,6 +4388,9 @@ function prepareBuildx() {
                     if (parseInputLoadToDocker()) {
                         cmd = `${cmd} --default_load`;
                     }
+                    if (core.getBooleanInput("wait-for-builder")) {
+                        cmd = `${cmd} --create_at_startup`;
+                    }
                     const exp = core.getInput("experimental");
                     if (exp !== "") {
                         cmd = `${cmd} --experimental ${exp}`;

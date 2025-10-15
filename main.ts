@@ -8,6 +8,7 @@ import {
   nscInRunnerBuilderName,
   getBuilderName,
 } from "./common";
+import { getBooleanInput } from "@actions/core";
 
 async function run(): Promise<void> {
   const commandExists = require("command-exists");
@@ -69,6 +70,10 @@ async function prepareBuildx(): Promise<void> {
 
         if (parseInputLoadToDocker()) {
           cmd = `${cmd} --default_load`;
+        }
+
+        if (core.getBooleanInput("wait-for-builder")) {
+            cmd = `${cmd} --create_at_startup`;
         }
 
         const exp = core.getInput("experimental");
