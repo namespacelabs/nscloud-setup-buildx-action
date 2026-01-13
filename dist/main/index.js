@@ -4406,6 +4406,11 @@ function prepareBuildx() {
                     yield exec.exec(cmd);
                 }));
             }
+            if (core.getBooleanInput("wait-for-builder")) {
+                yield core.group("Wait for Builder", () => __awaiter(this, void 0, void 0, function* () {
+                    yield exec.exec(`nsc docker buildx wait-for-builder`);
+                }));
+            }
             yield core.group("Builder", () => __awaiter(this, void 0, void 0, function* () {
                 core.info(getBuilderName());
             }));
