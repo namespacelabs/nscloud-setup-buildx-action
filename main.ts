@@ -73,7 +73,7 @@ async function prepareBuildx(): Promise<void> {
         }
 
         if (core.getBooleanInput("wait-for-builder")) {
-            cmd = `${cmd} --create_at_startup`;
+          cmd = `${cmd} --create_at_startup`;
         }
 
         const exp = core.getInput("experimental");
@@ -90,6 +90,12 @@ async function prepareBuildx(): Promise<void> {
         }
 
         await exec.exec(cmd);
+      });
+    }
+
+    if (core.getBooleanInput("wait-for-builder")) {
+      await core.group("Wait for Builder", async () => {
+        await exec.exec(`nsc docker buildx wait-for-builder`);
       });
     }
 
