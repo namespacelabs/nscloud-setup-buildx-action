@@ -3,7 +3,7 @@ description: "Configure buildx to use the Namespace Cloud build cluster"
 
 inputs:
   builder-name:
-    description: 'The name of the builder configuration to be configured.'
+    description: 'The name of the local Docker build driver to be configured.'
     default: ""
   load-to-docker:
     description: 'Whether to load images to local docker engine'
@@ -13,6 +13,9 @@ inputs:
     default: "false"
   experimental:
     description: 'A set of experimental configurations passed to builder configuration.'
+    default: ""
+  tag:
+    description: 'If set, select this named builder. Contact support@namespace.so to get access.'
     default: ""
 
 runs:

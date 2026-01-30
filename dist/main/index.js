@@ -4395,6 +4395,10 @@ function prepareBuildx() {
                     if (exp !== "") {
                         cmd = `${cmd} --experimental ${exp}`;
                     }
+                    const tag = core.getInput("tag");
+                    if (tag !== "") {
+                        cmd = `${cmd} --tag ${tag}`;
+                    }
                     const nscRunner = yield isNscRunner();
                     if (nscRunner) {
                         core.debug("Environment is Namespace Runner");
